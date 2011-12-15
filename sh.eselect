@@ -19,7 +19,7 @@ find_targets() {
 			zsh \
 			posh \
 		; do
-		if [[ -x ${ROOT}/bin/${t} ]]; then
+		if [[ -x ${EROOT}/bin/${t} ]]; then
 			echo ${t}
 		fi
 	done
@@ -29,7 +29,7 @@ find_targets() {
 set_symlinks() {
 	local target="${1}" targets
 
-	[[ ! -L ${ROOT}/bin/sh && -e ${ROOT}/bin/sh ]] && \
+	[[ ! -L ${EROOT}/bin/sh && -e ${EROOT}/bin/sh ]] && \
 		die -q "/bin/sh is not a symlink!"
 
 	if is_number "${target}" && [[ ${target} -ge 1 ]]; then
@@ -37,14 +37,14 @@ set_symlinks() {
 		target=${targets[target-1]}
 	fi
 
-	if [[ -x ${ROOT}/bin/${target} ]]; then
-		local tmpf="${ROOT}"/bin/sh.new
+	if [[ -x ${EROOT}/bin/${target} ]]; then
+		local tmpf="${EROOT}"/bin/sh.new
 		# we could use 'ln -f' to directly replace the symlink
 		# but 'mv' is an atomic operation so it should be more fault-proof
 
 		ln -s "${target}" "${tmpf}" || \
 			die -q "Unable to create temporary symlink"
-		if ! mv "${tmpf}" "${ROOT}"/bin/sh; then
+		if ! mv "${tmpf}" "${EROOT}"/bin/sh; then
 			rm -f "${tmpf}" # cleanup
 			die -q "Unable to replace /bin/sh symlink with ${target}"
 		fi
@@ -63,9 +63,9 @@ do_show() {
 	[[ -z ${@} ]] || die -q "Too many parameters"
 
 	write_list_start "Current POSIX shell implementation:"
-	if [[ -L ${ROOT}/bin/sh ]]; then
+	if [[ -L ${EROOT}/bin/sh ]]; then
 		write_kv_list_entry "$(basename $(readlink ${ROOT}/bin/sh))" ""
-	elif [[ -e ${ROOT}/bin/sh ]]; then
+	elif [[ -e ${EROOT}/bin/sh ]]; then
 		write_kv_list_entry "(not a symlink)" ""
 	else
 		write_kv_list_entry "(unset)" ""
@@ -85,7 +85,7 @@ do_list() {
 	targets=( $(find_targets) )
 	if [[ -n ${targets[@]} ]]; then
 		for (( i = 0; i < ${#targets[@]}; i++ )) ; do
-			[[ ${targets[${i}]} == $(basename $(readlink ${ROOT}/bin/sh)) ]] && \
+			[[ ${targets[${i}]} == $(basename $(readlink ${EROOT}/bin/sh)) ]] && \
 				targets[${i}]=$(highlight_marker "${targets[${i}]}")
 		done
 		write_list_start "Available POSIX shell implementations:"
@@ -131,7 +131,8 @@ do_update() {
 	[[ -z ${1} || ( -z ${2} && ( ${1} == ifunset || ${1} == '--if-unset' ) ) ]] || \
 		die -q "Usage error"
 
-	[[ ( ${1} == ifunset || ${1} == '--if-unset' ) && -L ${ROOT}/bin/sh && -x ${ROOT}/bin/sh ]] && \
+	[[ ( ${1} == ifunset || ${1} == '--if-unset' ) \
+			&& -L ${EROOT}/bin/sh && -x ${EROOT}/bin/sh ]] && \
 		return
 
 	set_symlinks 1
