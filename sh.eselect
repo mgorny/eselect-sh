@@ -82,15 +82,14 @@ do_list() {
 	[[ -z ${@} ]] || die -q "Too many parameters"
 
 	local i targets
+
 	targets=( $(find_targets) )
-	if [[ -n ${targets[@]} ]]; then
-		for (( i = 0; i < ${#targets[@]}; i++ )) ; do
-			[[ ${targets[${i}]} == $(basename $(readlink "${EROOT}"/bin/sh)) ]] && \
-				targets[${i}]=$(highlight_marker "${targets[${i}]}")
-		done
-		write_list_start "Available POSIX shell implementations:"
-		write_numbered_list -m '(none found)' "${targets[@]}"
-	fi
+	for (( i = 0; i < ${#targets[@]}; i++ )) ; do
+		[[ ${targets[${i}]} == $(basename $(readlink "${EROOT}"/bin/sh)) ]] && \
+			targets[${i}]=$(highlight_marker "${targets[${i}]}")
+	done
+	write_list_start "Available POSIX shell implementations:"
+	write_numbered_list -m '(none found)' "${targets[@]}"
 }
 
 ### set action ###
