@@ -3,8 +3,8 @@
 # $Id: $
 
 DESCRIPTION="Manage /bin/sh (POSIX shell) implementations"
-MAINTAINER="gentoo@mgorny.alt.pl"
-VERSION="0.2_rc"
+MAINTAINER="mgorny@gentoo.org"
+VERSION="0.3"
 
 # Based on work of Erik Hahn; bug #214817
 
